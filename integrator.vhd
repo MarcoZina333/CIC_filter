@@ -56,7 +56,7 @@ architecture Default of integrator is
 	
 	signal temp_output : std_logic_vector(WIDTH-1 downto 0);
 	signal reg_output : std_logic_vector(WIDTH-1 downto 0);
-	
+
 begin
 
 	reg: reg_en_async_rst
@@ -74,9 +74,9 @@ begin
 		port map (
 			A => reg_output,
 			B => input,
-			Cin => '0',					-- If WIDTH is choosen correctly, the carry should never be used, so we can set it to 0 
+			Cin => '0',				-- If WIDTH is choosen correctly, the carry should never be used, so we can set it to 0 
 			Sum => temp_output,
-			Cout => Cout 				-- If WIDTH is choosen incorrectly, Cout can be used to detect such an error
+			Cout => Cout 			-- If WIDTH is choosen incorrectly, Cout can be used to detect such an error (Cout = 1)
 		);
 	
 	process(rst, en, temp_output)

@@ -1,21 +1,24 @@
 v 4
-file . "./testbench.vhd" "9ab0af3e9672aca9fdec0d9c8ee917864eec1a47" "20260524133311.713":
-  entity testbench at 11( 322) + 0 on 193;
-  architecture behavior of testbench at 17( 408) + 0 on 194;
-file . "./adder.vhd" "ba7e4e8f19ead404aef7ab7c4b8f3a982a3e16d6" "20260524133311.316":
-  entity adder at 1( 0) + 0 on 189;
-  architecture behavioral of adder at 17( 556) + 0 on 190;
-file . "./reg_sol.vhd" "479ae74ee52ce3a561bf5a9235ab2a8278d24ce5" "20260524133311.097":
-  entity reg_async_rst at 15( 504) + 0 on 179;
-  architecture bhv of reg_async_rst at 33( 944) + 0 on 180;
-  entity reg_sync_rst at 88( 3502) + 0 on 181;
-  architecture bhv of reg_sync_rst at 106( 3938) + 0 on 182;
-  entity reg_en_async_rst at 127( 4641) + 0 on 183;
-  architecture bhv of reg_en_async_rst at 147( 5197) + 0 on 184;
-  entity reg_en_sync_rst at 167( 5772) + 0 on 185;
-  architecture bhv of reg_en_sync_rst at 188( 6325) + 0 on 186;
-  entity reg at 210( 6902) + 0 on 187;
-  architecture default_arch of reg at 230( 7378) + 0 on 188;
-file . "./integrator.vhd" "ba7d46a6bc22db63143fb72bcb88d67a2771a3b6" "20260524133311.519":
-  entity integrator at 15( 480) + 0 on 191;
-  architecture default of integrator at 32( 878) + 0 on 192;
+file . "./integrator.vhd" "ba7d46a6bc22db63143fb72bcb88d67a2771a3b6" "20260524134016.376":
+  entity integrator at 15( 480) + 0 on 207;
+  architecture default of integrator at 32( 878) + 0 on 208;
+file . "./reg_sol.vhd" "479ae74ee52ce3a561bf5a9235ab2a8278d24ce5" "20260524134719.551":
+  entity reg_async_rst at 15( 504) + 0 on 241;
+  architecture bhv of reg_async_rst at 33( 944) + 0 on 242;
+  entity reg_sync_rst at 88( 3502) + 0 on 243;
+  architecture bhv of reg_sync_rst at 106( 3938) + 0 on 244;
+  entity reg_en_async_rst at 127( 4641) + 0 on 245;
+  architecture bhv of reg_en_async_rst at 147( 5197) + 0 on 246;
+  entity reg_en_sync_rst at 167( 5772) + 0 on 247;
+  architecture bhv of reg_en_sync_rst at 188( 6325) + 0 on 248;
+  entity reg at 210( 6902) + 0 on 249;
+  architecture default_arch of reg at 230( 7378) + 0 on 250;
+file . "./adder.vhd" "ba7e4e8f19ead404aef7ab7c4b8f3a982a3e16d6" "20260524134719.752":
+  entity adder at 1( 0) + 0 on 251;
+  architecture behavioral of adder at 17( 556) + 0 on 252;
+file . "./testbench.vhd" "96b8b63b8c29023bcb4a1ac85f33f16d9e92a377" "20260524134720.117":
+  entity testbench at 11( 322) + 0 on 255;
+  architecture behavior of testbench at 17( 408) + 0 on 256;
+file . "./comb.vhd" "ed7864d88e487bd26fb2e5ec04e5f71bd83942a3" "20260524134719.962":
+  entity comb at 15( 456) + 0 on 253;
+  architecture default of comb at 32( 842) + 0 on 254;

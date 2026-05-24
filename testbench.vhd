@@ -21,7 +21,7 @@ constant WIDTH  : positive := 4;
 
 -- Component Declaration for the Unit Under Test (UUT)
 
-COMPONENT integrator
+COMPONENT comb
     GENERIC(
         WIDTH : positive
         );
@@ -53,7 +53,7 @@ signal Cout     : std_logic;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: integrator
+uut: comb
 generic map (WIDTH => WIDTH)
 port map (
     clk => clk,
