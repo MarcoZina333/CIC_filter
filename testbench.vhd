@@ -18,20 +18,20 @@ ARCHITECTURE behavior OF testbench IS
 
 
 constant WIDTH  : positive := 4;
-
+constant R : positive := 2;
 -- Component Declaration for the Unit Under Test (UUT)
 
-COMPONENT comb
+COMPONENT zero_insertion
     GENERIC(
-        WIDTH : positive
+        WIDTH : positive;
+        R : positive
         );
     PORT(
         clk     : IN std_logic;
         rst     : IN std_logic;
         en      : IN std_logic;
         input   : IN std_logic_vector(WIDTH-1 downto 0);
-        output  : OUT std_logic_vector(WIDTH-1 downto 0);
-        Cout    : OUT std_logic
+        output  : OUT std_logic_vector(WIDTH-1 downto 0)
     );
 END COMPONENT;
 
@@ -53,18 +53,17 @@ signal Cout     : std_logic;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: comb
-generic map (WIDTH => WIDTH)
+uut: zero_insertion
+generic map (WIDTH => WIDTH, R => R)
 port map (
     clk => clk,
     rst => rst,
+    en => en,
     input => input,
-    output => output,
-    Cout => Cout,
-    en => en
+    output => output
 );
   -- 50 MHz clock generation
-  clk <= not clk and clk_en after 10 ns;
+  clk <= not clk and clk_en after 5 ns;
 
 -- Stimulus process
 stim_proc: process
