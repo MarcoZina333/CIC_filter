@@ -56,7 +56,7 @@ begin
         -- this template works for any form of sequential logic, there is no
         -- need to change it.
         
-        if (rst = '1') then
+        if (rst = '0') then
             -- Reset the output to all 0s. The others statement sets all the
             -- bits equal to the specified value. It is part of a more general
             -- aggregation construct that will be discussed in other examples.
@@ -114,7 +114,7 @@ begin
         if (rising_edge(clk)) then
             -- For the synchronous reset, we check the reset on the rising
             -- clock edge.
-            if (rst = '1') then
+            if (rst = '0') then
                 output <= (others => '0');
             else
                 output <= input;
@@ -148,7 +148,7 @@ architecture BHV of reg_en_async_rst is
 begin
     process(clk, rst)
     begin
-        if (rst = '1') then
+        if (rst = '0') then
             output <= (others => '0');
             
         elsif (rising_edge(clk)) then
@@ -194,7 +194,7 @@ begin
             -- and then have an elsif for the enable. Note that we have to
             -- check the conditions in this order since reset has priority
             -- over the enable.
-            if (rst = '1') then
+            if (rst = '0') then
                 output <= (others => '0');
             elsif (en = '1') then
                 output <= input;

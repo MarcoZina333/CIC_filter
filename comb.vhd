@@ -11,7 +11,7 @@
 --! Implementation of an integrator to be used inside a CIC filter. 
 --! The integrator is a simple accumulator that sums the input signal over time. 
 
-
+--TODO
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -22,21 +22,20 @@ entity integrator is
     port(
         clk    : in  std_logic;
         rst    : in  std_logic;
-		en 	   : in  std_logic;
-		Cout   : out std_logic;
+		Cin	: in  std_logic;
+		Cout	: out std_logic;
         input  : in  std_logic_vector(WIDTH-1 downto 0);
         output : out std_logic_vector(WIDTH-1 downto 0)
         );
 end integrator;
 
-architecture Default of integrator is
+architecture Structural of integrator is
 
-	component reg_en_async_rst
+	component reg_async_rst
     	generic (WIDTH: integer);
 		port(
 			clk    : in  std_logic;
 			rst    : in  std_logic;
-			en     : in  std_logic;
 			input  : in  std_logic_vector(WIDTH-1 downto 0);
 			output : out std_logic_vector(WIDTH-1 downto 0)
 		);
@@ -54,40 +53,28 @@ architecture Default of integrator is
 	end component;
 
 	
-	signal temp_output : std_logic_vector(WIDTH-1 downto 0);
+	signal reg_input : std_logic_vector(WIDTH-1 downto 0);
 	signal reg_output : std_logic_vector(WIDTH-1 downto 0);
-	
-begin
 
-	reg: reg_en_async_rst
+	REGISTER: reg_async_rst
 		generic map (WIDTH => WIDTH)
 		port map (
 			clk => clk,
 			rst => rst,
-			en => en,
-			input => temp_output,
+			input => reg_input,
 			output => reg_output
 		);
 	
-	add: adder
+	ADDER: adder
 		generic map (WIDTH => WIDTH)
 		port map (
 			A => reg_output,
 			B => input,
-			Cin => '0',					-- If WIDTH is choosen correctly, the carry should never be used, so we can set it to 0 
-			Sum => temp_output,
-			Cout => Cout 				-- If WIDTH is choosen incorrectly, Cout can be used to detect such an error
+			Cin => Cin,
+			Sum => reg_input,
+			Cout => Cout
 		);
 	
-	process(rst, en, temp_output)
-	begin
-		if rst = '0' then
-			output <= (others => '0');
-		else
-			if en = '1' then
-				output <= temp_output;
-			end if;
-		end if;
-	end process;
+	output <= reg_input;
 
-end Default;
+end Structural;

@@ -18,14 +18,14 @@ architecture Behavioral of Adder is
 begin
 
     sum_process: process(A, B, Cin)
-    variable temp_carry : std_logic_vector;
+    variable temp_carry : std_logic;
     begin
         -- Initial carry input
         temp_carry := Cin; 
         for i in 0 to WIDTH-1 loop
 
             -- Sum bit calculation
-            Sum(i) := A(i) XOR B(i) XOR temp_carry;
+            Sum(i) <= A(i) XOR B(i) XOR temp_carry;
 
             -- Carry calculation for next bit
             temp_carry := (A(i) AND B(i)) OR (temp_carry AND (A(i) XOR B(i))); 
