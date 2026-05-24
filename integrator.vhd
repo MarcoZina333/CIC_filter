@@ -53,8 +53,28 @@ architecture Structural of integrator is
 	end component;
 
 	
-	signal temp_add : std_logic_vector(WIDTH-1 downto 0);
+	signal reg_input : std_logic_vector(WIDTH-1 downto 0);
 	signal reg_output : std_logic_vector(WIDTH-1 downto 0);
+
+	REGISTER: reg_async_rst
+		generic map (WIDTH => WIDTH)
+		port map (
+			clk => clk,
+			rst => rst,
+			input => reg_input,
+			output => reg_output
+		);
 	
+	ADDER: adder
+		generic map (WIDTH => WIDTH)
+		port map (
+			A => reg_output,
+			B => input,
+			Cin => Cin,
+			Sum => reg_input,
+			Cout => Cout
+		);
 	
+	output <= reg_input;
+
 end Structural;
