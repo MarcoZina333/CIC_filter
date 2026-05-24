@@ -18,20 +18,17 @@ ARCHITECTURE behavior OF testbench IS
 
 
 constant WIDTH  : positive := 4;
-constant R : positive := 2;
+constant R : positive := 10;
 -- Component Declaration for the Unit Under Test (UUT)
 
-COMPONENT zero_insertion
+COMPONENT clock_divider
     GENERIC(
-        WIDTH : positive;
         R : positive
         );
     PORT(
         clk     : IN std_logic;
         rst     : IN std_logic;
-        en      : IN std_logic;
-        input   : IN std_logic_vector(WIDTH-1 downto 0);
-        output  : OUT std_logic_vector(WIDTH-1 downto 0)
+        clock_out : OUT std_logic
     );
 END COMPONENT;
 
@@ -47,23 +44,19 @@ signal clk      : std_logic := '0';
 signal rst      : std_logic := '0';
 
 --Outputs
-signal output   : std_logic_vector(WIDTH-1 downto 0);
-signal Cout     : std_logic;
-
+signal clock_out   : std_logic;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: zero_insertion
-generic map (WIDTH => WIDTH, R => R)
+uut: clock_divider
+generic map (R => R)
 port map (
     clk => clk,
     rst => rst,
-    en => en,
-    input => input,
-    output => output
+    clock_out => clock_out
 );
   -- 50 MHz clock generation
-  clk <= not clk and clk_en after 5 ns;
+  clk <= not clk and clk_en after 10 ns;
 
 -- Stimulus process
 stim_proc: process
@@ -74,26 +67,6 @@ begin
   
   wait for 10 ns;
   rst   <= '1';
-
-  input <= "0001";
-
-  wait for 5 ns;
-  rst   <= '0';
-
-  wait for 5 ns;
-  rst   <= '1';
-
-  wait for 10 ns;
-  input <= "0010";
-
-  wait for 20 ns;
-  input <= "1001";
-
-  wait for 20 ns;
-  input <= "0000";
-
-  wait for 20 ns;
-  input <= "1010";
   wait;
 
 end process;
