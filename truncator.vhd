@@ -12,3 +12,8 @@ entity truncator is
         output : out std_logic_vector(WIDTH_OUT-1 downto 0)
         );
 end truncator;
+
+architecture Behavioral of truncator is
+begin
+    output <= input(WIDTH_IN-1 downto WIDTH_IN-WIDTH_OUT);
+end Behavioral;
