@@ -21,7 +21,7 @@ signal tmp : std_logic := '0';
 begin
   
 process(clk,rst)
-variable count: integer := 0;
+variable count: natural := 0;
 begin
     if(rst='0') then
         tmp <= '0';

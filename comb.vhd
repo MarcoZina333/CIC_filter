@@ -82,7 +82,7 @@ begin
 			Cout => Cout 		-- If WIDTH is choosen incorrectly, Cout can be used to detect such an error (Cout = 0)
 		);
 	
-	process(rst, en, temp_output)
+	process(clk, rst, en, temp_output)
 	begin
 		if rst = '0' then
 			output <= (others => '0');

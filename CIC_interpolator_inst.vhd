@@ -20,18 +20,18 @@ use ieee.math_real.all;
 entity CIC_interpolator is
     generic(
         Bin : positive ;	-- Bit width of the input and output signals
-		N : positive ;		-- Number of stages
-		R : positive		-- Interpolation factor
+		N : positive ;	-- Number of stages
+		R : positive	-- Interpolation factor
 
 
         );
     port(
         clk_fast    : in  std_logic;
-        rst    		: in  std_logic;
-		en 	   		: in  std_logic;
-		Cout   		: out std_logic_vector(N*2-1 downto 0);
-        input  		: in  std_logic_vector(Bin-1 downto 0);
-        output 		: out std_logic_vector(Bin-1 downto 0)
+        rst    : in  std_logic;
+		en 	   : in  std_logic;
+		Cout   : out std_logic_vector(N*2-1 downto 0);
+        input  : in  std_logic_vector(Bin-1 downto 0);
+        output : out std_logic_vector(Bin-1 downto 0)
         );
 end CIC_interpolator;
 
@@ -113,12 +113,11 @@ architecture Default of CIC_interpolator is
 
 
 	signal clock_slow : std_logic;
-	constant MAX_WIDTH : positive := Bin+(N-1)*positive(ceil(log2(real(R))));
 
-	type signed_array is array (natural range <>) of std_logic_vector(MAX_WIDTH-1 downto 0);
+	type signed_array is array (natural range <>) of std_logic_vector(Bin+(N-1)*positive(ceil(log2(real(R)))) downto 0);
 
 	signal carry_over : signed_array(N*2 downto 0);
-	signal se_output  : std_logic_vector(MAX_WIDTH-1 downto 0);
+	signal se_output : signed_array(N*2-2 downto 0);
 	
 	
 begin
@@ -131,40 +130,49 @@ begin
 			clock_out => clock_slow
 		);
 
+
+
 	first_se: sign_extender
-		generic map (WIDTH_IN => Bin, WIDTH_OUT => MAX_WIDTH)
+		generic map (WIDTH_IN => Bin, WIDTH_OUT => Bin + 1)
 		port map (
 			input => input,
-			output => se_output
+			output => se_output(0)
 		);
 
 	first_comb: comb
-		generic map (WIDTH => MAX_WIDTH)
+		generic map (WIDTH => Bin)
 		port map (
 			clk => clock_slow,
 			rst => rst,
 			en => en,
 			Cout => Cout(0),
-			input => se_output,
+			input => se_output(0),
 			output => carry_over(0)
 		);
 	
 	gen_comb: for i in 1 to N-1 generate
+
+		se_inst: sign_extender
+			generic map (WIDTH_IN => Bin + i, WIDTH_OUT => Bin + i + 1)
+			port map (
+				input => carry_over(i-1),
+				output => se_output(i)
+			);
 		
-		comb_inst: comb
-			generic map (WIDTH => MAX_WIDTH)
+		comb_inst: integrator
+			generic map (WIDTH => Bin + i + 1)
 			port map (
 				clk => clock_slow,
 				rst => rst,
 				en => en,
 				Cout => Cout(i),
-				input => carry_over(i-1), 
+				input => se_output(i), 
 				output => carry_over(i) 
 			);
 	end generate;
 
 	interpolator : zero_insertion
-		generic map (WIDTH => MAX_WIDTH, R => R)
+		generic map (WIDTH => Bin + N, R => R)
 		port map (
 			clk => clk_fast,
 			rst => rst,
@@ -174,7 +182,7 @@ begin
 		);
 	
 	first_integrator: integrator
-		generic map (WIDTH => MAX_WIDTH)
+		generic map (WIDTH => Bin + N)
 		port map (
 			clk => clk_fast,
 			rst => rst,
@@ -188,20 +196,32 @@ begin
 	-- generate the remaining integrator stages using the formula present in the Hogenauer's paper for register growth
 	gen_integrator: for i in 1 to N-1 generate
 
+		se_inst: sign_extender
+			generic map (
+				-- in case of the first integrator stage, the input width is Bin + N
+				WIDTH_IN => maximum(Bin + N, Bin + N - i + (i-1)*positive(ceil(log2(real(R))))),
+				WIDTH_OUT => Bin + N - i - 1 + (i)*positive(ceil(log2(real(R))))
+				)
+			port map (
+				input => carry_over(N+i),
+				output => se_output(N-1+i)
+			);
+
+
 		integrator_inst: integrator
-			generic map (WIDTH => MAX_WIDTH)
+			generic map (WIDTH => Bin + N - i - 1 + (i)*positive(ceil(log2(real(R)))))
 			port map (
 				clk => clk_fast,
 				rst => rst,
 				en => en,
 				Cout => Cout(N+i),
-				input => carry_over(N+i),
+				input => se_output(N-1+i),
 				output => carry_over(N+i+1)
 			);
 	end generate;
 
 	final_truncator: truncator
-		generic map (WIDTH_IN => MAX_WIDTH, WIDTH_OUT => Bin)
+		generic map (WIDTH_IN => Bin + (N-1)*positive(ceil(log2(real(R)))), WIDTH_OUT => Bin)
 		port map (
 			input => carry_over(2*N),
 			output => output

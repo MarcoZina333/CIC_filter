@@ -40,7 +40,7 @@ constant COUNTER_WIDTH : integer := integer(ceil(log2(real(R))));
 
 begin
     process(clk, rst)
-    -- 2 bit counter to keep track of the number of clock cycles since the last reset
+    -- counter to keep track of the number of clock cycles since the last reset
     variable count : unsigned(COUNTER_WIDTH-1 downto 0) := (others => '0');
     begin
         if (rst = '0') then
@@ -52,7 +52,7 @@ begin
             else
                 output <= (others => '0');
             end if;
-            count := count + 1;
+            count := (count + 1) mod R;
 
         end if;
     end process;

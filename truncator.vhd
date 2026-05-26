@@ -13,7 +13,7 @@ entity truncator is
         );
 end truncator;
 
-architecture Behavioral of truncator is
+architecture Dataflow of truncator is
 begin
     output <= input(WIDTH_IN-1 downto WIDTH_IN-WIDTH_OUT);
-end Behavioral;
+end Dataflow;
