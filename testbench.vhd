@@ -1,12 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.math_real.all;
 
 ENTITY testbench IS
 END testbench;
 
 ARCHITECTURE cic_test OF testbench IS
-    component CIC_interpolator_inst is
+    component CIC_decimator_inst is
         generic(
             Bin : positive;	    -- Bit width of the input and output signals
 		    N : positive; 	    -- Number of stages    -- Number of stages
@@ -37,7 +38,7 @@ ARCHITECTURE cic_test OF testbench IS
     constant N       :  INTEGER  := 4;       -- Filter order
     constant R       :  INTEGER  := 10;      -- Interpolation factor
     constant Per     :  TIME     := 20 ns;   -- Clk period
-    constant TestLen :  INTEGER  := 70;      -- No. of Count (MckPer/2) for test
+    --constant TestLen :  INTEGER  := 70;      -- No. of Count (MckPer/2) for test
    
 
    signal clock_fast : std_logic := '0';
@@ -47,13 +48,12 @@ ARCHITECTURE cic_test OF testbench IS
    signal input : std_logic_vector(Bin-1 downto 0):= "0000000000000000" ;
    signal output : std_logic_vector(Bin-1 downto 0);
    
-   SIGNAL clk_cycle : INTEGER ;
    SIGNAL Testing: Boolean := True;
    
    BEGIN
    clock_fast <= NOT clock_fast AFTER Per/2 WHEN Testing ELSE '0';
   
-    I: CIC_interpolator_inst
+    I: CIC_decimator_inst
         generic map (
             N => N,
             Bin => Bin,
@@ -71,56 +71,22 @@ ARCHITECTURE cic_test OF testbench IS
         generic map (R => R)
         port map (
             clk => clock_fast,
-            rst => reset,
+            rst => '1',
             clock_out => clock_slow
         );
      
     
-    Test_Proc: PROCESS(clock_slow)
-        VARIABLE count: INTEGER:= 1;
-    BEGIN
-     --if rising_edge(clock_slow) then
-        clk_cycle <= (count+1)/2;
-
-        CASE count IS
-    
-            WHEN  1   => input <= "0000000000000000" ; reset <= '1';
-            WHEN  3   => input <= "0000000000000001";
-            WHEN  5   => input <= "0000000000000010";
-            WHEN  7   => input <= "0000000000000101";
-            WHEN  9   => input <= "0000000000001010";
-            WHEN  11  => input <=  "0000000000000101";
-            WHEN  13  => input <= "0000000000001010";
-            WHEN  15  => input <= "0000000000001011";
-            WHEN  17  => input <= "0000000000001111";
-            WHEN  19  => input <= "0000000000001000";
-            WHEN  21  => input <=  "0000000000000011";
-            WHEN  23  => input <=  "0000000000011110";
-            WHEN  25  => input <=  "0000000000000001";  
-            
-            WHEN  27  => input <= "1111111111111101";
-            WHEN  29 => input <= "1111111111101100";
-            WHEN  31  => input <= "1111111111111001";
-            WHEN  33  => input <= "0000000000001010";
-            WHEN  35  => input <=  "1111111111111111";
-            WHEN  37  => input <= "1111111111111011";
-            WHEN  39  => input <= "1111111111110001";
-            WHEN  41  => input <= "1111111111010011";
-            WHEN  43  => input <= "1111111111100010";
-            WHEN  45  => input <=  "1111111111100011";
-            WHEN  47  => input <=  "0000000000000010";
-            WHEN  49  => input <=  "0000000000000001";
-            
-            
-            WHEN  51  => input <=  "0000000000000000"; 
-
-
-            WHEN (TestLen - 1) =>   Testing <= False;
-            WHEN OTHERS => NULL;
-        END CASE;
-
-     count:= count + 1;
-    --end if;
+    Test_Proc: PROCESS(clock_fast)
+        variable count : integer := 0;
+    BEGIN  
+    if rising_edge(clock_fast) then
+        if count > 7 then
+            input <= std_logic_vector( to_signed(integer(sin(2.0*MATH_PI/real(R*5)*real(count))*real(2.0**(Bin-1)-1.0)), Bin));
+        elsif count = 1 then
+            reset <= '1';
+        end if;
+        count := count + 1;
+    end if;
    END PROCESS Test_Proc;
      
    END cic_test;
