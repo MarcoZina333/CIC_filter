@@ -6,10 +6,10 @@ ENTITY testbench IS
 END testbench;
 
 ARCHITECTURE cic_test OF testbench IS
-    component CIC_interpolator is
+    component CIC_interpolator_inst is
         generic(
             Bin : positive;	    -- Bit width of the input and output signals
-            N : positive;	    -- Number of stages
+		    N : positive; 	    -- Number of stages    -- Number of stages
             R : positive	    -- Interpolation factor
             );
         port(
@@ -53,10 +53,10 @@ ARCHITECTURE cic_test OF testbench IS
    BEGIN
    clock_fast <= NOT clock_fast AFTER Per/2 WHEN Testing ELSE '0';
   
-    I: CIC_interpolator
+    I: CIC_interpolator_inst
         generic map (
-            Bin => Bin,
             N => N,
+            Bin => Bin,
             R => R
         )  
         port map (

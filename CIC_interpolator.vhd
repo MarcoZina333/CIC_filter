@@ -37,15 +37,6 @@ end CIC_interpolator;
 
 architecture Default of CIC_interpolator is
 
-	function maximum(a, b : positive) return positive is
-	begin
-		if a > b then
-			return a;
-		else
-			return b;
-		end if;
-	end function;
-
 	component comb
 		generic (WIDTH: integer);
 		port(

@@ -6,7 +6,7 @@
 --! <br>               
 --! Company : UniBS                             
 --! <br>               
---! File : CIC_interpolator.vhd  
+--! File : CIC_interpolator_inst.vhd  
 --! <br>               
 --! Implementation of a not size optimized parametric CIC_interpolator 
 
@@ -17,11 +17,11 @@ use ieee.math_real.all;
 
 
 
-entity CIC_interpolator is
+entity CIC_interpolator_inst is
     generic(
-        Bin : positive ;	-- Bit width of the input and output signals
-		N : positive ;	-- Number of stages
-		R : positive	-- Interpolation factor
+        Bin : positive 	;	-- Bit width of the input and output signals
+		N : positive 	;	-- Number of stages
+		R : positive 			-- Interpolation factor
 
 
         );
@@ -33,18 +33,9 @@ entity CIC_interpolator is
         input  : in  std_logic_vector(Bin-1 downto 0);
         output : out std_logic_vector(Bin-1 downto 0)
         );
-end CIC_interpolator;
+end CIC_interpolator_inst;
 
-architecture Default of CIC_interpolator is
-
-	function maximum(a, b : positive) return positive is
-	begin
-		if a > b then
-			return a;
-		else
-			return b;
-		end if;
-	end function;
+architecture Default of CIC_interpolator_inst is
 
 	component comb
 		generic (WIDTH: integer);
@@ -112,12 +103,49 @@ architecture Default of CIC_interpolator is
 	end component;
 
 
+	constant W1 : positive := Bin + 1;
+	constant W2 : positive := Bin + 2;
+	constant W3 : positive := Bin + 3;
+	constant W4 : positive := Bin + 4;
+	--constant W5 : positive := Bin + 4;
+	constant W6 : positive := Bin + 2*N - 6 + (6-N-1)*positive(ceil(log2(real(R))));
+	constant W7 : positive := Bin + 2*N - 7 + (7-N-1)*positive(ceil(log2(real(R))));
+	constant W8 : positive := Bin + 2*N - 8 + (8-N-1)*positive(ceil(log2(real(R))));
+
 	signal clock_slow : std_logic;
 
-	type signed_array is array (natural range <>) of std_logic_vector(Bin+(N-1)*positive(ceil(log2(real(R)))) downto 0);
 
-	signal carry_over : signed_array(N*2 downto 0);
-	signal se_output : signed_array(N*2-2 downto 0);
+	signal se_output1 : std_logic_vector(W1-1 downto 0);
+	signal carry_over1 : std_logic_vector(W1-1 downto 0);
+
+	signal se_output2 : std_logic_vector(W2-1 downto 0);
+	signal carry_over2 : std_logic_vector(W2-1 downto 0);
+
+	
+	signal se_output3 : std_logic_vector(W3-1 downto 0);
+	signal carry_over3 : std_logic_vector(W3-1 downto 0);
+
+	
+	signal se_output4 : std_logic_vector(W4-1 downto 0);
+	signal carry_over4 : std_logic_vector(W4-1 downto 0);
+	
+	signal Interpolator_output : std_logic_vector(W4-1 downto 0);
+
+	
+	--signal se_output5 : std_logic_vector(W5-1 downto 0);
+	signal carry_over5 : std_logic_vector(W4-1 downto 0);
+
+	
+	signal se_output6 : std_logic_vector(W6-1 downto 0);
+	signal carry_over6 : std_logic_vector(W6-1 downto 0);
+
+	
+	signal se_output7 : std_logic_vector(W7-1 downto 0);
+	signal carry_over7 : std_logic_vector(W7-1 downto 0);
+
+	
+	signal se_output8 : std_logic_vector(W8-1 downto 0);
+	signal carry_over8 : std_logic_vector(W8-1 downto 0);
 	
 	
 begin
@@ -132,98 +160,161 @@ begin
 
 
 
-	first_se: sign_extender
-		generic map (WIDTH_IN => Bin, WIDTH_OUT => Bin + 1)
+	se1: sign_extender
+		generic map (WIDTH_IN => Bin, WIDTH_OUT => W1)
 		port map (
 			input => input,
-			output => se_output(0)
+			output => se_output1
 		);
 
-	first_comb: comb
-		generic map (WIDTH => Bin)
+	comb1: comb
+		generic map (WIDTH => W1)
 		port map (
 			clk => clock_slow,
 			rst => rst,
 			en => en,
 			Cout => Cout(0),
-			input => se_output(0),
-			output => carry_over(0)
+			input => se_output1,
+			output => carry_over1
+		);
+
+	se2: sign_extender
+		generic map (WIDTH_IN => W1, WIDTH_OUT => W2)
+		port map (
+			input => carry_over1,
+			output => se_output2
+		);
+
+	comb2: comb
+		generic map (WIDTH => W2)
+		port map (
+			clk => clock_slow,
+			rst => rst,
+			en => en,
+			Cout => Cout(1),
+			input => se_output2,
+			output => carry_over2
 		);
 	
-	gen_comb: for i in 1 to N-1 generate
+	se3: sign_extender
+		generic map (WIDTH_IN => W2, WIDTH_OUT => W3)
+		port map (
+			input => carry_over2,
+			output => se_output3
+		);
 
-		se_inst: sign_extender
-			generic map (WIDTH_IN => Bin + i, WIDTH_OUT => Bin + i + 1)
-			port map (
-				input => carry_over(i-1),
-				output => se_output(i)
-			);
-		
-		comb_inst: integrator
-			generic map (WIDTH => Bin + i + 1)
-			port map (
-				clk => clock_slow,
-				rst => rst,
-				en => en,
-				Cout => Cout(i),
-				input => se_output(i), 
-				output => carry_over(i) 
-			);
-	end generate;
+	comb3: comb
+		generic map (WIDTH => W3)
+		port map (
+			clk => clock_slow,
+			rst => rst,
+			en => en,
+			Cout => Cout(2),
+			input => se_output3,
+			output => carry_over3
+		);
+
+	se4: sign_extender
+		generic map (WIDTH_IN => W3, WIDTH_OUT => W4)
+		port map (
+			input => carry_over3,
+			output => se_output4
+		);
+
+	comb4: comb
+		generic map (WIDTH => W4)
+		port map (
+			clk => clock_slow,
+			rst => rst,
+			en => en,
+			Cout => Cout(3),
+			input => se_output4,
+			output => carry_over4
+		);
+	
 
 	interpolator : zero_insertion
-		generic map (WIDTH => Bin + N, R => R)
+		generic map (WIDTH => W4, R => R)
 		port map (
 			clk => clk_fast,
 			rst => rst,
 			en => en,
-			input => carry_over(N-1),
-			output => carry_over(N) 
+			input => carry_over4,
+			output => interpolator_output 
 		);
 	
-	first_integrator: integrator
-		generic map (WIDTH => Bin + N)
+	integrator1: integrator
+		generic map (WIDTH => W4)
 		port map (
 			clk => clk_fast,
 			rst => rst,
 			en => en,
-			Cout => Cout(N),
-			input => carry_over(N),
-			output => carry_over(N+1)
+			Cout => Cout(4),
+			input => interpolator_output,
+			output => carry_over5
+		);
+		
+	se6: sign_extender
+		generic map (WIDTH_IN => W4, WIDTH_OUT => W6)
+		port map (
+			input => carry_over5,
+			output => se_output6
 		);
 	
+	integrator2: integrator
+		generic map (WIDTH => W6)
+		port map (
+			clk => clk_fast,
+			rst => rst,
+			en => en,
+			Cout => Cout(5),
+			input => se_output6,
+			output => carry_over6
+		);
+	
+	se7: sign_extender
+		generic map (WIDTH_IN => W6, WIDTH_OUT => W7)
+		port map (
+			input => carry_over6,
+			output => se_output7
+		);
+	
+	integrator3: integrator
+		generic map (WIDTH => W7)
+		port map (
+			clk => clk_fast,
+			rst => rst,
+			en => en,
+			Cout => Cout(6),
+			input => se_output7,
+			output => carry_over7
+		);
 
-	-- generate the remaining integrator stages using the formula present in the Hogenauer's paper for register growth
-	gen_integrator: for i in 1 to N-1 generate
+	se8: sign_extender
+		generic map (WIDTH_IN => W7, WIDTH_OUT => W8)
+		port map (
+			input => carry_over7,
+			output => se_output8
+		);
+	
+	integrator4: integrator
+		generic map (WIDTH => W8)
+		port map (
+			clk => clk_fast,
+			rst => rst,
+			en => en,
+			Cout => Cout(7),
+			input => se_output8,
+			output => carry_over8
+		);
 
-		se_inst: sign_extender
-			generic map (
-				-- in case of the first integrator stage, the input width is Bin + N
-				WIDTH_IN => maximum(Bin + N, Bin + N - i + (i-1)*positive(ceil(log2(real(R))))),
-				WIDTH_OUT => Bin + N - i - 1 + (i)*positive(ceil(log2(real(R))))
-				)
-			port map (
-				input => carry_over(N+i),
-				output => se_output(N-1+i)
-			);
+	
 
-
-		integrator_inst: integrator
-			generic map (WIDTH => Bin + N - i - 1 + (i)*positive(ceil(log2(real(R)))))
-			port map (
-				clk => clk_fast,
-				rst => rst,
-				en => en,
-				Cout => Cout(N+i),
-				input => se_output(N-1+i),
-				output => carry_over(N+i+1)
-			);
-	end generate;
 
 	final_truncator: truncator
-		generic map (WIDTH_IN => Bin + (N-1)*positive(ceil(log2(real(R)))), WIDTH_OUT => Bin)
+		generic map (WIDTH_IN => W8, WIDTH_OUT => Bin)
 		port map (
-			input => carry_over(2*N),
+			input => carry_over8,
 			output => output
 		);
 

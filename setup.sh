@@ -7,7 +7,7 @@ ghdl -a ./sign_extender.vhd
 ghdl -a ./truncator.vhd
 ghdl -a ./integrator.vhd
 ghdl -a ./zero_insertion.vhd
-ghdl -a ./CIC_interpolator.vhd
+ghdl -a ./CIC_interpolator_inst.vhd
 ghdl -a ./testbench.vhd
 
 ghdl --elab-run testbench --vcd=./result.vcd --stop-time=10us
